@@ -1,0 +1,25 @@
+acrLoginServer: ecommerceacr.azurecr.io
+
+frontend:
+  image: ecommerceacr.azurecr.io/frontend:latest
+  replicas: 2
+  port: 80
+  service:
+    type: LoadBalancer
+    port: 80
+
+productService:
+  image: ecommerceacr.azurecr.io/product-service:latest
+  replicas: 2
+  port: 8080
+  service:
+    type: ClusterIP
+    port: 8080
+
+orderService:
+  image: ecommerceacr.azurecr.io/order-service:latest
+  replicas: 2
+  port: 8080
+  service:
+    type: ClusterIP
+    port: 8080

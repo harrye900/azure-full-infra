@@ -1,0 +1,36 @@
+trigger: none  # triggered manually or after build pipeline
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  acrLoginServer: ecommerceacr.azurecr.io
+  imageTag: $(Build.BuildId)
+
+steps:
+  - task: AzureCLI@2
+    displayName: Get AKS credentials
+    inputs:
+      azureSubscription: azure-service-connection
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        az aks get-credentials \
+          --resource-group ecommerce-rg \
+          --name ecommerce-aks \
+          --overwrite-existing
+
+  - task: HelmDeploy@0
+    displayName: Helm upgrade --install
+    inputs:
+      connectionType: None
+      namespace: default
+      command: upgrade
+      chartType: FilePath
+      chartPath: helm/ecommerce
+      releaseName: ecommerce
+      install: true
+      arguments: >
+        --set frontend.image=$(acrLoginServer)/frontend:$(imageTag)
+        --set productService.image=$(acrLoginServer)/product-service:$(imageTag)
+        --set orderService.image=$(acrLoginServer)/order-service:$(imageTag)

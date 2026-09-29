@@ -6,28 +6,22 @@ pool:
 variables:
   acrLoginServer: ecommerceacr.azurecr.io
 
-resources:
-  pipelines:
-    - pipeline: build
-      source: build-pipeline
-      trigger: true
-
 steps:
-  - task: DownloadPipelineArtifact@2
-    displayName: Download build ID
+  - task: AzureCLI@2
+    displayName: Get latest build tag from ACR
     inputs:
-      buildType: specific
-      project: $(System.TeamProjectId)
-      definition: build-pipeline
-      buildVersionToDownload: latest
-      artifactName: buildid
-      targetPath: $(Pipeline.Workspace)/buildid
-
-  - bash: |
-      TAG=$(cat $(Pipeline.Workspace)/buildid/buildid.txt)
-      echo "##vso[task.setvariable variable=imageTag]$TAG"
-      echo "Deploying image tag: $TAG"
-    displayName: Set image tag from build
+      azureSubscription: azure-service-connection
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        TAG=$(az acr repository show-tags \
+          --name ecommerceacr \
+          --repository frontend \
+          --orderby time_desc \
+          --top 1 \
+          --output tsv | grep -v latest)
+        echo "Latest image tag: $TAG"
+        echo "##vso[task.setvariable variable=imageTag]$TAG"
 
   - task: AzureCLI@2
     displayName: Get AKS credentials

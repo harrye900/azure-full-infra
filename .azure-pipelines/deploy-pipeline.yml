@@ -6,13 +6,19 @@ pool:
 variables:
   acrLoginServer: ecommerceacr.azurecr.io
 
+resources:
+  pipelines:
+    - pipeline: build
+      source: build-pipeline
+      trigger: true
+
 steps:
   - task: DownloadPipelineArtifact@2
     displayName: Download build ID
     inputs:
       buildType: specific
       project: $(System.TeamProjectId)
-      definition: $(resources.pipeline.build.pipelineID)
+      definition: build-pipeline
       buildVersionToDownload: latest
       artifactName: buildid
       targetPath: $(Pipeline.Workspace)/buildid

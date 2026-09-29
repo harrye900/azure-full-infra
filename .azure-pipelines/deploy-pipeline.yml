@@ -19,6 +19,7 @@ steps:
           --resource-group ecommerce-rg \
           --name ecommerce-aks \
           --overwrite-existing
+        echo "##vso[task.setvariable variable=KUBECONFIG]$HOME/.kube/config"
 
   - task: HelmDeploy@0
     displayName: Helm upgrade --install
@@ -30,7 +31,23 @@ steps:
       chartPath: helm/ecommerce
       releaseName: ecommerce
       install: true
+      waitForExecution: false
       arguments: >
+        --timeout 5m
         --set frontend.image=$(acrLoginServer)/frontend:$(imageTag)
         --set productService.image=$(acrLoginServer)/product-service:$(imageTag)
         --set orderService.image=$(acrLoginServer)/order-service:$(imageTag)
+
+  - task: AzureCLI@2
+    displayName: Check pod status
+    inputs:
+      azureSubscription: azure-service-connection
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        az aks get-credentials \
+          --resource-group ecommerce-rg \
+          --name ecommerce-aks \
+          --overwrite-existing
+        kubectl get pods -n default
+        kubectl get services -n default

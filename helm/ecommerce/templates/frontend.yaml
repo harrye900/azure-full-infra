@@ -20,7 +20,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /
-              port: {{ .Values.frontend.port }}
+              port: {{ .Values.frontend.port | int }}
 ---
 apiVersion: v1
 kind: Service

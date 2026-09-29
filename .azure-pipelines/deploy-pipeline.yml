@@ -38,21 +38,24 @@ steps:
           --name ecommerce-aks \
           --overwrite-existing
 
-  - task: HelmDeploy@0
+  - task: AzureCLI@2
     displayName: Install NGINX Ingress Controller
     inputs:
-      connectionType: None
-      namespace: ingress-nginx
-      command: upgrade
-      chartType: Name
-      chartName: ingress-nginx/ingress-nginx
-      releaseName: ingress-nginx
-      install: true
-      waitForExecution: true
-      arguments: >
-        --create-namespace
-        --repo https://kubernetes.github.io/ingress-nginx
-        --set controller.service.type=LoadBalancer
+      azureSubscription: azure-service-connection
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        az aks get-credentials \
+          --resource-group ecommerce-rg \
+          --name ecommerce-aks \
+          --overwrite-existing
+        helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+        helm repo update
+        helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
+          --namespace ingress-nginx \
+          --create-namespace \
+          --set controller.service.type=LoadBalancer \
+          --wait
 
   - task: HelmDeploy@0
     displayName: Helm upgrade --install

@@ -35,6 +35,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
     type = "SystemAssigned"
   }
 
+  oidc_issuer_enabled = true
+
   network_profile {
     network_plugin = "azure"
     dns_service_ip = "10.2.0.10"

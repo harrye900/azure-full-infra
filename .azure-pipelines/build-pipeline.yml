@@ -69,3 +69,12 @@ stages:
               tags: |
                 $(imageTag)
                 latest
+
+          - bash: echo $(Build.BuildId) > $(Build.ArtifactStagingDirectory)/buildid.txt
+            displayName: Save build ID
+
+          - task: PublishPipelineArtifact@1
+            displayName: Publish build ID artifact
+            inputs:
+              targetPath: $(Build.ArtifactStagingDirectory)/buildid.txt
+              artifact: buildid

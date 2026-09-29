@@ -1,13 +1,28 @@
-trigger: none  # triggered manually or after build pipeline
+trigger: none
 
 pool:
   vmImage: ubuntu-latest
 
 variables:
   acrLoginServer: ecommerceacr.azurecr.io
-  imageTag: latest
 
 steps:
+  - task: DownloadPipelineArtifact@2
+    displayName: Download build ID
+    inputs:
+      buildType: specific
+      project: $(System.TeamProjectId)
+      definition: $(resources.pipeline.build.pipelineID)
+      buildVersionToDownload: latest
+      artifactName: buildid
+      targetPath: $(Pipeline.Workspace)/buildid
+
+  - bash: |
+      TAG=$(cat $(Pipeline.Workspace)/buildid/buildid.txt)
+      echo "##vso[task.setvariable variable=imageTag]$TAG"
+      echo "Deploying image tag: $TAG"
+    displayName: Set image tag from build
+
   - task: AzureCLI@2
     displayName: Get AKS credentials
     inputs:
@@ -19,7 +34,6 @@ steps:
           --resource-group ecommerce-rg \
           --name ecommerce-aks \
           --overwrite-existing
-        echo "##vso[task.setvariable variable=KUBECONFIG]$HOME/.kube/config"
 
   - task: HelmDeploy@0
     displayName: Helm upgrade --install

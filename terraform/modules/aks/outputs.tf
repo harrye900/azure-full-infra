@@ -23,3 +23,11 @@ output "acr_login_server" {
 output "acr_name" {
   value = azurerm_container_registry.acr.name
 }
+
+output "vnet_id" {
+  value = azurerm_virtual_network.vnet.id
+}
+
+output "aks_subnet_id" {
+  value = azurerm_subnet.aks_subnet.id
+}

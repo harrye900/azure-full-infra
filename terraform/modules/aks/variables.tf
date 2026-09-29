@@ -36,3 +36,15 @@ variable "acr_name" {
   type        = string
   description = "Azure Container Registry name (must be globally unique, alphanumeric only)"
 }
+
+variable "vnet_address_space" {
+  type        = string
+  description = "Address space for the VNet"
+  default     = "10.0.0.0/8"
+}
+
+variable "aks_subnet_prefix" {
+  type        = string
+  description = "Subnet prefix for AKS nodes"
+  default     = "10.1.0.0/16"
+}

@@ -31,6 +31,7 @@ steps:
 
   - task: TerraformTaskV4@4
     displayName: Terraform Plan
+    name: plan
     inputs:
       provider: azurerm
       command: plan
@@ -39,6 +40,7 @@ steps:
 
   - task: TerraformTaskV4@4
     displayName: Terraform Apply
+    condition: ne(variables['plan.changesPresent'], 'false')
     inputs:
       provider: azurerm
       command: apply

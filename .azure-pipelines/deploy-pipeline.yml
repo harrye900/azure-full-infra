@@ -39,6 +39,22 @@ steps:
           --overwrite-existing
 
   - task: HelmDeploy@0
+    displayName: Install NGINX Ingress Controller
+    inputs:
+      connectionType: None
+      namespace: ingress-nginx
+      command: upgrade
+      chartType: Name
+      chartName: ingress-nginx/ingress-nginx
+      releaseName: ingress-nginx
+      install: true
+      waitForExecution: true
+      arguments: >
+        --create-namespace
+        --repo https://kubernetes.github.io/ingress-nginx
+        --set controller.service.type=LoadBalancer
+
+  - task: HelmDeploy@0
     displayName: Helm upgrade --install
     inputs:
       connectionType: None

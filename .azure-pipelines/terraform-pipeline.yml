@@ -13,6 +13,24 @@ variables:
   - group: ecommerce   # ARM_CLIENT_ID, ARM_CLIENT_SECRET, ARM_TENANT_ID, ARM_SUBSCRIPTION_ID
 
 steps:
+  - task: AzureCLI@2
+    displayName: Bootstrap - Create storage account for Terraform state
+    inputs:
+      azureSubscription: azure-service-connection
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        az group create --name ecommerce-rg --location eastus
+        az storage account create \
+          --name ecommercetfstate23 \
+          --resource-group ecommerce-rg \
+          --sku Standard_LRS \
+          --location eastus
+        az storage container create \
+          --name tfstate \
+          --account-name ecommercetfstate23
+        echo "Bootstrap complete"
+
   - task: TerraformInstaller@1
     inputs:
       terraformVersion: 'latest'

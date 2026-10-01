@@ -47,21 +47,6 @@ steps:
       backendAzureRmContainerName: tfstate
       backendAzureRmKey: terraform.tfstate
 
-  - bash: |
-      cd $(System.DefaultWorkingDirectory)/terraform
-      export ARM_CLIENT_ID=$(ARM_CLIENT_ID)
-      export ARM_CLIENT_SECRET=$(ARM_CLIENT_SECRET)
-      export ARM_TENANT_ID=$(ARM_TENANT_ID)
-      export ARM_SUBSCRIPTION_ID=$(ARM_SUBSCRIPTION_ID)
-      if ! terraform state show module.aks.azurerm_resource_group.rg 2>/dev/null; then
-        echo "Importing resource group into state..."
-        terraform import module.aks.azurerm_resource_group.rg \
-          /subscriptions/$(ARM_SUBSCRIPTION_ID)/resourceGroups/ecommerce-rg
-      else
-        echo "Resource group already in state, skipping import"
-      fi
-    displayName: Import existing resource group into Terraform state
-
   - task: TerraformTaskV4@4
     displayName: Terraform Plan
     name: plan
